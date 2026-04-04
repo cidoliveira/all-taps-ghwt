@@ -1,0 +1,40 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "win32-release",
+      "displayName": "Win32 Release",
+      "description": "32-bit MSVC Release build for xinput1_3 proxy DLL",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "Win32",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/build/win32-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "win32-debug",
+      "displayName": "Win32 Debug",
+      "description": "32-bit MSVC Debug build for xinput1_3 proxy DLL",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "Win32",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/build/win32-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "win32-release",
+      "displayName": "Win32 Release Build",
+      "configurePreset": "win32-release"
+    }
+  ]
+}
