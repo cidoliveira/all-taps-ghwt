@@ -88,12 +88,48 @@ DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) WIN
 }
 
 typedef DWORD (WINAPI *PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*);
-DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities) WIN_NOEXCEPT
+DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags,
+                                   XINPUT_CAPABILITIES* pCapabilities) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputGetCapabilities>(g_procs[4]);
     if (!fn) return ERROR_DEVICE_NOT_CONNECTED;
-    return fn(dwUserIndex, dwFlags, pCapabilities);
+
+    DWORD result = fn(dwUserIndex, dwFlags, pCapabilities);
+
+    // Cache device subtype per slot for use by XInputGetState
+    if (dwUserIndex < XUSER_MAX_COUNT)
+    {
+        if (result == ERROR_SUCCESS && pCapabilities != nullptr)
+        {
+            g_isGuitar[dwUserIndex]      = IsGuitarSubtype(pCapabilities->SubType);
+            g_slotConnected[dwUserIndex] = true;
+
+            // Diagnostic: log first capabilities query per slot (one-shot)
+            static bool s_logged[XUSER_MAX_COUNT] = {};
+            if (!s_logged[dwUserIndex])
+            {
+                char buf[128];
+                sprintf_s(buf, sizeof(buf),
+                          "[AllTaps] GetCapabilities slot=%lu subType=0x%02X flags=0x%08lX guitar=%s\n",
+                          dwUserIndex,
+                          (unsigned)pCapabilities->SubType,
+                          dwFlags,
+                          g_isGuitar[dwUserIndex] ? "YES" : "NO");
+                OutputDebugStringA(buf);
+                s_logged[dwUserIndex] = true;
+            }
+        }
+        else
+        {
+            // Disconnected or error: clear cached state so reconnects
+            // with a different device type are handled correctly.
+            g_isGuitar[dwUserIndex]      = false;
+            g_slotConnected[dwUserIndex] = false;
+        }
+    }
+
+    return result;
 }
 
 typedef void (WINAPI *PFN_XInputEnable)(BOOL);
