@@ -11,6 +11,10 @@
 HMODULE g_realXInput = nullptr;
 FARPROC g_procs[9]   = {};
 
+// Per-slot device classification
+bool g_isGuitar[XUSER_MAX_COUNT]      = {};
+bool g_slotConnected[XUSER_MAX_COUNT] = {};
+
 // ---------------------------------------------------------------------------
 // LoadRealXInput
 // ---------------------------------------------------------------------------
@@ -35,6 +39,28 @@ bool LoadRealXInput()
         g_procs[i] = GetProcAddress(g_realXInput, (LPCSTR)(ULONG_PTR)i);
 
     return true;
+}
+
+// ---------------------------------------------------------------------------
+// Guitar subtype detection
+// ---------------------------------------------------------------------------
+
+// Older SDK versions may omit GUITAR_ALTERNATE and GUITAR_BASS.
+#ifndef XINPUT_DEVSUBTYPE_GUITAR_ALTERNATE
+#define XINPUT_DEVSUBTYPE_GUITAR_ALTERNATE 0x07
+#endif
+#ifndef XINPUT_DEVSUBTYPE_GUITAR_BASS
+#define XINPUT_DEVSUBTYPE_GUITAR_BASS      0x0B
+#endif
+
+// Returns true if subType identifies a guitar controller (has physical strum bar).
+// Three XInput guitar subtypes exist: GUITAR (0x06), GUITAR_ALTERNATE (0x07),
+// GUITAR_BASS (0x0B). All other subtypes (gamepad, wheel, dance pad, etc.) return false.
+inline bool IsGuitarSubtype(BYTE subType)
+{
+    return subType == XINPUT_DEVSUBTYPE_GUITAR
+        || subType == XINPUT_DEVSUBTYPE_GUITAR_ALTERNATE
+        || subType == XINPUT_DEVSUBTYPE_GUITAR_BASS;
 }
 
 // ---------------------------------------------------------------------------
