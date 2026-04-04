@@ -64,6 +64,34 @@ inline bool IsGuitarSubtype(BYTE subType)
 }
 
 // ---------------------------------------------------------------------------
+// Fret detection
+// ---------------------------------------------------------------------------
+
+// Combined fret button bitmask.
+// Guitar Hero maps fret buttons to standard XInput gamepad buttons:
+//   Green  = A  (0x1000)    Red    = B  (0x2000)
+//   Yellow = Y  (0x8000)    Blue   = X  (0x4000)
+//   Orange = LB (0x0100)
+static constexpr WORD FRET_MASK =
+    XINPUT_GAMEPAD_A             |  // Green  0x1000
+    XINPUT_GAMEPAD_B             |  // Red    0x2000
+    XINPUT_GAMEPAD_Y             |  // Yellow 0x8000
+    XINPUT_GAMEPAD_X             |  // Blue   0x4000
+    XINPUT_GAMEPAD_LEFT_SHOULDER;   // Orange 0x0100
+// = 0xF100
+
+// Log fret press to OutputDebugString. Viewable in Sysinternals DebugView.
+// Only called when fret bits are non-zero, so no per-frame spam.
+inline void DebugLogFrets(DWORD slot, WORD fretBits)
+{
+    char buf[80];
+    sprintf_s(buf, sizeof(buf),
+              "[AllTaps] slot=%lu frets=0x%04X\n",
+              slot, (unsigned)fretBits);
+    OutputDebugStringA(buf);
+}
+
+// ---------------------------------------------------------------------------
 // Export stubs
 // WIN_NOEXCEPT is required to match the exception specification in xinput.h.
 // Without it, MSVC raises C2382 (redefinition with different exception spec).
