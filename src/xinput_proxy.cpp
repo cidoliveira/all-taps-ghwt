@@ -103,7 +103,24 @@ DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) WIN_NOEXCEP
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputGetState>(g_procs[2]);
     if (!fn) return ERROR_DEVICE_NOT_CONNECTED;
-    return fn(dwUserIndex, pState);
+
+    DWORD result = fn(dwUserIndex, pState);
+
+    if (result == ERROR_SUCCESS && pState != nullptr && dwUserIndex < XUSER_MAX_COUNT)
+    {
+        // SAFE-02: Guitar controllers have a physical strum bar.
+        // Skip fret detection entirely for guitar slots.
+        if (g_isGuitar[dwUserIndex])
+            return result;
+
+        WORD fretBits = pState->Gamepad.wButtons & FRET_MASK;
+        if (fretBits != 0)
+        {
+            DebugLogFrets(dwUserIndex, fretBits);
+        }
+    }
+
+    return result;
 }
 
 typedef DWORD (WINAPI *PFN_XInputSetState)(DWORD, XINPUT_VIBRATION*);
