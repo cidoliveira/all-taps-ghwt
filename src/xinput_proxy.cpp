@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <xinput.h>
+#include <stdio.h>
 
 // ---------------------------------------------------------------------------
 // Globals
@@ -38,10 +39,12 @@ bool LoadRealXInput()
 
 // ---------------------------------------------------------------------------
 // Export stubs
+// WIN_NOEXCEPT is required to match the exception specification in xinput.h.
+// Without it, MSVC raises C2382 (redefinition with different exception spec).
 // ---------------------------------------------------------------------------
 
 typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE*);
-DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
+DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputGetState>(g_procs[2]);
@@ -50,7 +53,7 @@ DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
 }
 
 typedef DWORD (WINAPI *PFN_XInputSetState)(DWORD, XINPUT_VIBRATION*);
-DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
+DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputSetState>(g_procs[3]);
@@ -59,7 +62,7 @@ DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
 }
 
 typedef DWORD (WINAPI *PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*);
-DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities)
+DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputGetCapabilities>(g_procs[4]);
@@ -68,7 +71,7 @@ DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPA
 }
 
 typedef void (WINAPI *PFN_XInputEnable)(BOOL);
-void WINAPI XInputEnable(BOOL enable)
+void WINAPI XInputEnable(BOOL enable) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputEnable>(g_procs[5]);
@@ -77,7 +80,7 @@ void WINAPI XInputEnable(BOOL enable)
 }
 
 typedef DWORD (WINAPI *PFN_XInputGetDSoundAudioDeviceGuids)(DWORD, GUID*, GUID*);
-DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRenderGuid, GUID* pDSoundCaptureGuid)
+DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRenderGuid, GUID* pDSoundCaptureGuid) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputGetDSoundAudioDeviceGuids>(g_procs[6]);
@@ -86,7 +89,7 @@ DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRen
 }
 
 typedef DWORD (WINAPI *PFN_XInputGetBatteryInformation)(DWORD, BYTE, XINPUT_BATTERY_INFORMATION*);
-DWORD WINAPI XInputGetBatteryInformation(DWORD dwUserIndex, BYTE devType, XINPUT_BATTERY_INFORMATION* pBatteryInformation)
+DWORD WINAPI XInputGetBatteryInformation(DWORD dwUserIndex, BYTE devType, XINPUT_BATTERY_INFORMATION* pBatteryInformation) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputGetBatteryInformation>(g_procs[7]);
@@ -95,7 +98,7 @@ DWORD WINAPI XInputGetBatteryInformation(DWORD dwUserIndex, BYTE devType, XINPUT
 }
 
 typedef DWORD (WINAPI *PFN_XInputGetKeystroke)(DWORD, DWORD, PXINPUT_KEYSTROKE);
-DWORD WINAPI XInputGetKeystroke(DWORD dwUserIndex, DWORD dwReserved, PXINPUT_KEYSTROKE pKeystroke)
+DWORD WINAPI XInputGetKeystroke(DWORD dwUserIndex, DWORD dwReserved, PXINPUT_KEYSTROKE pKeystroke) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
     auto fn = reinterpret_cast<PFN_XInputGetKeystroke>(g_procs[8]);
