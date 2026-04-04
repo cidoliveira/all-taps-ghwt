@@ -5,7 +5,7 @@
       "name": "win32-release",
       "displayName": "Win32 Release",
       "description": "32-bit MSVC Release build for xinput1_3 proxy DLL",
-      "generator": "Visual Studio 17 2022",
+      "generator": "Visual Studio 18 2026",
       "architecture": {
         "value": "Win32",
         "strategy": "set"
@@ -19,7 +19,7 @@
       "name": "win32-debug",
       "displayName": "Win32 Debug",
       "description": "32-bit MSVC Debug build for xinput1_3 proxy DLL",
-      "generator": "Visual Studio 17 2022",
+      "generator": "Visual Studio 18 2026",
       "architecture": {
         "value": "Win32",
         "strategy": "set"
