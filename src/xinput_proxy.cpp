@@ -92,6 +92,81 @@ inline void DebugLogFrets(DWORD slot, WORD fretBits)
 }
 
 // ---------------------------------------------------------------------------
+// All-Taps GHWTDE patch
+// ---------------------------------------------------------------------------
+//
+// GHWTDE.dll exports all symbols (GCC/MinGW Itanium ABI mangling).
+// We patch two functions and one flag to make all notes taps:
+//
+//   1. CanAutoStrum()      — stubbed to return false; we patch to return true
+//   2. b_AutoStrumAllowed  — global bool; we set to true
+//   3. is_tapping_note()   — per-note check; we patch to always return true
+//
+// Total: 8 bytes of code + 1 byte of data. No MinHook needed.
+//
+
+static bool g_ghwtdePatched = false;
+
+static void TryPatchGHWTDE()
+{
+    if (g_ghwtdePatched) return;
+
+    HMODULE ghwtde = GetModuleHandleA("GHWTDE.dll");
+    if (!ghwtde) return;  // Not loaded yet, try next frame
+
+    g_ghwtdePatched = true;
+    OutputDebugStringA("[AllTaps] GHWTDE.dll found, applying patches...\n");
+
+    // Tier 1: Patch CanAutoStrum() -> return true  (was: xor eax,eax; ret)
+    auto canAutoStrum = reinterpret_cast<BYTE*>(
+        GetProcAddress(ghwtde, "_ZN9InputHook12CanAutoStrumEv"));
+    if (canAutoStrum) {
+        DWORD oldProt;
+        if (VirtualProtect(canAutoStrum, 3, PAGE_EXECUTE_READWRITE, &oldProt)) {
+            canAutoStrum[0] = 0xB0;  // mov al, 1
+            canAutoStrum[1] = 0x01;
+            canAutoStrum[2] = 0xC3;  // ret
+            VirtualProtect(canAutoStrum, 3, oldProt, &oldProt);
+            OutputDebugStringA("[AllTaps] Patched CanAutoStrum -> return true\n");
+        }
+    }
+
+    // Tier 1: Set b_AutoStrumAllowed = true
+    auto bAutoStrum = reinterpret_cast<bool*>(
+        GetProcAddress(ghwtde, "_ZN9InputHook18b_AutoStrumAllowedE"));
+    if (bAutoStrum) {
+        *bAutoStrum = true;
+        OutputDebugStringA("[AllTaps] Set b_AutoStrumAllowed = true\n");
+    }
+
+    // Tier 2: Patch is_tapping_note(int,int) -> return true
+    //   Convention: __thiscall (ecx=this), 2 int params, ret 8
+    auto isTapping = reinterpret_cast<BYTE*>(
+        GetProcAddress(ghwtde, "_ZN3Mdl5Input15is_tapping_noteEii"));
+    if (isTapping) {
+        DWORD oldProt;
+        if (VirtualProtect(isTapping, 5, PAGE_EXECUTE_READWRITE, &oldProt)) {
+            isTapping[0] = 0xB0;  // mov al, 1
+            isTapping[1] = 0x01;
+            isTapping[2] = 0xC2;  // ret 8
+            isTapping[3] = 0x08;
+            isTapping[4] = 0x00;
+            VirtualProtect(isTapping, 5, oldProt, &oldProt);
+            OutputDebugStringA("[AllTaps] Patched is_tapping_note -> return true\n");
+        }
+    }
+
+    // Log what resolved and what didn't
+    char buf[256];
+    snprintf(buf, sizeof(buf),
+             "[AllTaps] Patch summary: CanAutoStrum=%s, b_AutoStrum=%s, is_tapping=%s\n",
+             canAutoStrum ? "OK" : "MISSING",
+             bAutoStrum   ? "OK" : "MISSING",
+             isTapping    ? "OK" : "MISSING");
+    OutputDebugStringA(buf);
+}
+
+// ---------------------------------------------------------------------------
 // Export stubs
 // WIN_NOEXCEPT is required to match the exception specification in xinput.h.
 // Without it, MSVC raises C2382 (redefinition with different exception spec).
@@ -101,6 +176,7 @@ typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE*);
 DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) WIN_NOEXCEPT
 {
     static bool s_init = (LoadRealXInput(), true);
+    TryPatchGHWTDE();  // lazy: no-op after first successful patch
     auto fn = reinterpret_cast<PFN_XInputGetState>(g_procs[2]);
     if (!fn) return ERROR_DEVICE_NOT_CONNECTED;
 
