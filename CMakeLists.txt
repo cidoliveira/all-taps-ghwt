@@ -44,6 +44,9 @@ install(TARGETS xinput1_3
 install(FILES "${CMAKE_SOURCE_DIR}/README.md"
     DESTINATION .
 )
+install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
+    DESTINATION .
+)
 
 set(CPACK_GENERATOR "ZIP")
 set(CPACK_PACKAGE_NAME "all-taps-ghwt")
