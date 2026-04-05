@@ -17,12 +17,6 @@ Patches Guitar Hero World Tour: Definitive Edition so every note is a tap note. 
 2. Open the ZIP and copy `xinput1_3.dll` into the GHWTDE game folder (the same folder as `GHWT_Definitive.exe`).
 3. Launch the game. All notes behave as taps immediately -- no configuration needed.
 
-Typical Steam install path:
-
-```
-C:\Program Files (x86)\Steam\steamapps\common\Guitar Hero World Tour Definitive Edition
-```
-
 ---
 
 ## Verify
@@ -44,7 +38,9 @@ C:\Program Files (x86)\Steam\steamapps\common\Guitar Hero World Tour Definitive 
 
 Windows may show a SmartScreen warning or your antivirus may flag `xinput1_3.dll`. This is expected behavior for unsigned community mods -- the DLL is not code-signed.
 
-Scan results: [VirusTotal scan (vX.Y.Z)](link-to-results) -- X/72 detections, all heuristic false positives common for xinput proxy DLLs.
+Scan results: [VirusTotal scan (v1.0.0)](link-to-results)
+
+Detections are heuristic false positives common for xinput proxy DLLs. Antivirus engines like Cynet are known to flag virtually anything unsigned -- do not count those as real detections.
 
 To bypass the warning, use either method:
 
@@ -91,26 +87,4 @@ cmake --build --preset win32-release --config Release
 
 ## License
 
-MIT License
-
-Copyright (c) 2026 all-taps-ghwt contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-Source: https://github.com/[your-username]/all-taps-ghwt
+MIT -- see [LICENSE](LICENSE).

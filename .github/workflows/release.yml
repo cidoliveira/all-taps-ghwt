@@ -21,21 +21,21 @@ jobs:
         with:
           arch: x86
 
-      - name: Configure (win32-release)
-        run: cmake --preset win32-release
+      - name: Configure
+        run: cmake -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build (win32-release)
-        run: cmake --build --preset win32-release --config Release
+      - name: Build
+        run: cmake --build build/release --config Release
 
-      - name: Package (release-zip)
-        working-directory: build/win32-release
-        run: cpack --preset release-zip
+      - name: Package
+        working-directory: build/release
+        run: cpack -G ZIP
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-zip
-          path: build/win32-release/*.zip
+          path: build/release/*.zip
 
   release:
     runs-on: ubuntu-latest
