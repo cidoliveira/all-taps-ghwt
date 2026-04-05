@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25)
 # Force static CRT before project() so it applies to FetchContent targets too
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "" FORCE)
 
-project(all_taps_xinput VERSION 1.0.0 CXX)
+project(all_taps_xinput VERSION 1.0.0 LANGUAGES CXX)
 
 include(FetchContent)
 
