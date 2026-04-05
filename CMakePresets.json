@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 6,
   "configurePresets": [
     {
       "name": "win32-release",
@@ -35,6 +35,14 @@
       "name": "win32-release",
       "displayName": "Win32 Release Build",
       "configurePreset": "win32-release"
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "release-zip",
+      "displayName": "Release ZIP",
+      "configurePreset": "win32-release",
+      "generators": ["ZIP"]
     }
   ]
 }

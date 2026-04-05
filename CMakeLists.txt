@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 
 # Force static CRT before project() so it applies to FetchContent targets too
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "" FORCE)
 
-project(all_taps_xinput CXX)
+project(all_taps_xinput VERSION 1.0.0 CXX)
 
 include(FetchContent)
 
@@ -36,3 +36,20 @@ target_include_directories(xinput1_3 PRIVATE src)
 # of our own proxy DLL, creating a circular dependency at load time.
 # XInput types come from #include <xinput.h> (header-only, no .lib needed).
 target_link_libraries(xinput1_3 PRIVATE minhook)
+
+# --- Distribution packaging ---
+install(TARGETS xinput1_3
+    RUNTIME DESTINATION .
+)
+install(FILES "${CMAKE_SOURCE_DIR}/README.md"
+    DESTINATION .
+)
+
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_PACKAGE_NAME "all-taps-ghwt")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-win32")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "All-Taps mod for Guitar Hero World Tour: Definitive Edition")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+
+include(CPack)
